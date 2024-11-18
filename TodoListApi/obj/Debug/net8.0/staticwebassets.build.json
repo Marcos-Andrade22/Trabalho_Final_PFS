@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "WFM/EiYzTKvwZ90QIWiKNt8ylKybtuwPSrETRiZIR6g=",
+  "Source": "TodoListApi",
+  "BasePath": "_content/TodoListApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "TodoListApi\\wwwroot",
+      "Source": "TodoListApi",
+      "ContentRoot": "D:\\Vianna\\Trabalho_Final_PFS\\TodoListApi\\wwwroot\\",
+      "BasePath": "_content/TodoListApi",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}
