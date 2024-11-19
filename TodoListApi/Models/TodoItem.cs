@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TodoListApi.Models
 {
     public class TodoItem
@@ -8,6 +10,8 @@ namespace TodoListApi.Models
 
         // Relacionamento 1:N
         public int CategoryId { get; set; } // Chave estrangeira
-        public Category Category { get; set; }
+
+        [JsonIgnore]
+        public Category? Category { get; set; }
     }
 }

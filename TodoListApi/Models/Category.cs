@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TodoListApi.Models
 {
     public class Category
@@ -6,6 +8,7 @@ namespace TodoListApi.Models
         public string Name { get; set; }
 
         // Relacionamento 1:N
-        public List<TodoItem> TodoItems { get; set; }
+        [JsonIgnore]
+        public List<TodoItem>? TodoItems { get; set; }
     }
 }
