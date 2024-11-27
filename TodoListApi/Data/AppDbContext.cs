@@ -10,5 +10,8 @@ namespace TodoListApi.Data
         public DbSet<TodoItem> TodoItems { get; set; }
         public DbSet<Category> Categories { get; set; } // Nova entidade
 
+        public DbSet<User> Users { get; set; }
+
+
     }
 }

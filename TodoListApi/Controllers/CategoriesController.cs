@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoListApi.Data;
@@ -42,6 +43,7 @@ namespace TodoListApi.Controllers
         }
 
         // POST: api/Categories
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Category>> CreateCategory(Category category)
         {

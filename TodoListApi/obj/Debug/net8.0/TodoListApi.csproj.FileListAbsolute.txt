@@ -167,3 +167,4 @@ D:\Vianna\Trabalho_Final_PFS\TodoListApi\obj\Debug\net8.0\refint\TodoListApi.dll
 D:\Vianna\Trabalho_Final_PFS\TodoListApi\obj\Debug\net8.0\TodoListApi.pdb
 D:\Vianna\Trabalho_Final_PFS\TodoListApi\obj\Debug\net8.0\TodoListApi.genruntimeconfig.cache
 D:\Vianna\Trabalho_Final_PFS\TodoListApi\obj\Debug\net8.0\ref\TodoListApi.dll
+D:\Vianna\Trabalho_Final_PFS\TodoListApi\bin\Debug\net8.0\BCrypt.Net-Next.dll
