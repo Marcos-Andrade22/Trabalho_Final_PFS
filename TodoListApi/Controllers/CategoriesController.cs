@@ -7,6 +7,7 @@ using TodoListApi.Models;
 namespace TodoListApi.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class CategoriesController : ControllerBase
     {
@@ -65,6 +66,8 @@ namespace TodoListApi.Controllers
 
         // PUT: api/Categories/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> UpdateCategory(int id, Category category)
         {
             if (id != category.Id)
@@ -95,6 +98,7 @@ namespace TodoListApi.Controllers
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
