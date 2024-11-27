@@ -26,6 +26,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// Configuração do CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", builder =>
+        builder.WithOrigins("http://localhost:5173") // Permite apenas essa origem (front-end)
+               .AllowAnyMethod()  // Permite qualquer método HTTP (GET, POST, etc.)
+               .AllowAnyHeader()); // Permite qualquer cabeçalho
+});
+
 // Outras configurações
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -33,10 +42,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Configura o CORS
+app.UseCors("AllowFrontend");
+
+// Configuração do Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseAuthentication(); // Adicione esta linha para habilitar autenticação
+app.UseAuthentication(); // Habilita autenticação
 app.UseAuthorization();
 
 app.MapControllers();
