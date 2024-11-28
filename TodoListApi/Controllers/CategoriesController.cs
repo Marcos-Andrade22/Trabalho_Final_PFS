@@ -7,7 +7,7 @@ using TodoListApi.Models;
 namespace TodoListApi.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize] // Mantemos o [Authorize] para permitir apenas usuários autenticados
     [ApiController]
     public class CategoriesController : ControllerBase
     {
@@ -44,7 +44,6 @@ namespace TodoListApi.Controllers
         }
 
         // POST: api/Categories
-        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Category>> CreateCategory(Category category)
         {
@@ -63,11 +62,9 @@ namespace TodoListApi.Controllers
             return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
         }
 
-
         // PUT: api/Categories/5
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-
+        [Authorize(Roles = "Admin")] // Mantemos apenas para edição e exclusão de categorias
         public async Task<IActionResult> UpdateCategory(int id, Category category)
         {
             if (id != category.Id)
@@ -98,7 +95,7 @@ namespace TodoListApi.Controllers
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")] // Mantemos apenas para edição e exclusão de categorias
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);

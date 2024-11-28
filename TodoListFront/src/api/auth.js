@@ -1,21 +1,26 @@
-import axios from 'axios';
+// auth.js
 
-const API_URL = 'http://localhost:5000/api/auth/'; // Substitua com a URL da sua API
-
-export const register = async (userData) => {
-  try {
-    const response = await axios.post(`${API_URL}register`, userData);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
-};
-
-export const login = async (loginData) => {
-  try {
-    const response = await axios.post(`${API_URL}login`, loginData);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
-};
+// Função para login
+export const login = async (email, password) => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email,
+        password,
+      });
+      localStorage.setItem('token', response.data.token); // Armazenar token
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw new Error('Login failed');
+    }
+  };
+  
+  // Função para obter o token
+  export const getToken = () => {
+    return localStorage.getItem('token');
+  };
+  
+  // Função para fazer logout
+  export const logout = () => {
+    localStorage.removeItem('token');
+  };
+  

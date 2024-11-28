@@ -27,6 +27,7 @@ const Navbar = () => {
         <NavItem><Link to="/login">Login</Link></NavItem>
         <NavItem><Link to="/dashboard">Dashboard</Link></NavItem>
         <NavItem><Link to="/todos">Lista de Todos</Link></NavItem>
+        <NavItem><Link to="/categories">Categories</Link></NavItem> {/* Adicionado o link para Categories */}
       </NavList>
     </Nav>
   );

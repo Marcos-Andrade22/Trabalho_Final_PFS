@@ -44,9 +44,37 @@ const CreateItemButton = styled.button`
   cursor: pointer;
 `;
 
+const CreateCategoryForm = styled.form`
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  background-color: #d1b18d;
+  padding: 1rem;
+  border-radius: 8px;
+`;
+
+const CategoryInput = styled.input`
+  padding: 0.8rem;
+  font-size: 1.2rem;
+  border-radius: 4px;
+  border: 1px solid #4b3f2f;
+  width: 70%;
+`;
+
+const CreateCategoryButton = styled.button`
+  padding: 0.8rem 1.5rem;
+  background-color: #4b3f2f;
+  color: white;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`;
+
 const TodoListPage = () => {
   const [categories, setCategories] = useState([]);
   const [todoItems, setTodoItems] = useState([]);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -83,6 +111,30 @@ const TodoListPage = () => {
     }
   };
 
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+    if (!newCategoryName) {
+      setSnackbarMessage('O nome da categoria não pode estar vazio.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    try {
+      const newCategory = { name: newCategoryName };
+      const { data } = await api.post('/categories', newCategory); // Requisição POST para criar categoria
+      setCategories([...categories, data]); // Atualiza a lista de categorias com a nova categoria
+      setNewCategoryName(''); // Limpa o campo de input
+      setSnackbarMessage('Categoria criada com sucesso!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (error) {
+      setSnackbarMessage('Erro ao criar categoria.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -90,8 +142,19 @@ const TodoListPage = () => {
   return (
     <TodoListContainer>
       <h1>Lista de Tarefas</h1>
-      <CreateItemButton onClick={handleCreateItem}>Criar Item</CreateItemButton>
-      
+
+      {/* Formulário para criação de categoria */}
+      <CreateCategoryForm onSubmit={handleCreateCategory}>
+        <CategoryInput
+          type="text"
+          placeholder="Nome da nova categoria"
+          value={newCategoryName}
+          onChange={(e) => setNewCategoryName(e.target.value)}
+        />
+        <CreateCategoryButton type="submit">Criar Categoria</CreateCategoryButton>
+      </CreateCategoryForm>
+
+      {/* Exibindo categorias e itens */}
       {categories.map((category) => (
         <CategoryContainer key={category.id}>
           <CategoryTitle>{category.name}</CategoryTitle>
@@ -104,6 +167,8 @@ const TodoListPage = () => {
           </TodoItemList>
         </CategoryContainer>
       ))}
+
+      <CreateItemButton onClick={handleCreateItem}>Criar Item</CreateItemButton>
 
       <SnackbarNotification
         open={snackbarOpen}
