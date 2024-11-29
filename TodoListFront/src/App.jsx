@@ -35,14 +35,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-          <Route
-            path="/categories"
-            element={
-              <PrivateRoute>
-                <CategoryListPage />
-              </PrivateRoute>
-            }
-          />
         </Routes>
       </Router>
     </AuthProvider>

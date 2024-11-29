@@ -51,7 +51,13 @@ namespace TodoListApi.Controllers
             var category = await _context.Categories.FindAsync(todoItem.CategoryId);
             if (category == null)
             {
-                return BadRequest("Invalid CategoryId.");
+                return BadRequest("Categoria inválida ou inexistente.");
+            }
+
+            // Valida se o título do item não está vazio
+            if (string.IsNullOrWhiteSpace(todoItem.Title))
+            {
+                return BadRequest("O título do item não pode estar vazio.");
             }
 
             _context.TodoItems.Add(todoItem);

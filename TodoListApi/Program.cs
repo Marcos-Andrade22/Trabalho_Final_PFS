@@ -1,7 +1,7 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using TodoListApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Configurar o banco SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Obter configurações do JWT do appsettings.json
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
 // Configurar autenticação JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -20,9 +23,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "your-issuer",
-            ValidAudience = "your-audience",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-secret-key"))
+            ValidIssuer = jwtSettings["Issuer"], // Alinha com o "Issuer" do appsettings.json
+            ValidAudience = jwtSettings["Audience"], // Alinha com o "Audience"
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"])) // Alinha com o "SecretKey"
         };
     });
 
@@ -31,8 +34,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", builder =>
         builder.WithOrigins("http://localhost:5173") // Permite apenas essa origem (front-end)
-               .AllowAnyMethod()  // Permite qualquer método HTTP (GET, POST, etc.)
-               .AllowAnyHeader()); // Permite qualquer cabeçalho
+               .AllowAnyMethod()
+               .AllowAnyHeader());
 });
 
 // Outras configurações

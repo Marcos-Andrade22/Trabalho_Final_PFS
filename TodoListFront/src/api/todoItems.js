@@ -1,23 +1,33 @@
-import api from './api'; // Importando a configuração do axios com token
+// src/api/todoItems.js
+import axios from 'axios';
+import { getToken } from './auth'; // Função para obter o token JWT
 
-const API_URL = '/todoitems/'; // URL da API para tarefas (todos)
-
-// Função para obter os itens da lista de tarefas
 export const getTodoItems = async () => {
-  try {
-    const response = await api.get(API_URL); // Usando a configuração com o token
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+  const response = await axios.get('http://localhost:5287/api/todoItems', {
+    headers: {
+      Authorization: `Bearer ${getToken()}`, // Passando o token JWT
+    },
+  });
+  return response.data; // Supondo que a API retorne todos os itens
 };
 
-// Função para criar um novo item de tarefa
-export const createTodoItem = async (todoItemData) => {
+export const createTodoItem = async (categoryId, todoData) => {
   try {
-    const response = await api.post(API_URL, todoItemData); // Usando a configuração com o token
+    const response = await axios.post(
+      'http://localhost:5287/api/todoItems',
+      {
+        title: todoData.title,
+        categoryId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`, // Passando o token JWT
+        },
+      }
+    );
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    console.error('Erro ao criar item:', error);
+    throw new Error('Erro ao criar item');
   }
 };

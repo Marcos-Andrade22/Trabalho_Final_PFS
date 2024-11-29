@@ -56,9 +56,6 @@ const Navbar = () => {
               <Link to="/todos">Lista de Todos</Link>
             </NavItem>
             <NavItem>
-              <Link to="/categories">Categories</Link>
-            </NavItem>
-            <NavItem>
               <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
             </NavItem>
           </>

@@ -10,6 +10,7 @@ api.interceptors.request.use(
   (config) => {
     const token = getToken();
     if (token) {
+      console.log("Token:", token); // Para depuração
       config.headers['Authorization'] = `Bearer ${token}`; // Adiciona o token no header
     }
     return config;
