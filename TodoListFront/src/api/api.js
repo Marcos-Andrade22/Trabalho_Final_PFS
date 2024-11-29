@@ -1,43 +1,20 @@
-// api.js
 import axios from 'axios';
 import { getToken } from './auth';
 
-// Função para obter as categorias
-export const getCategories = async () => {
-  const token = getToken();
-  if (!token) throw new Error('User is not authenticated');
+const api = axios.create({
+  baseURL: 'http://localhost:5287/api', // Base URL do back-end
+});
 
-  try {
-    const response = await axios.get('http://localhost:5000/api/categories', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    throw error;
-  }
-};
+// Interceptador para adicionar o token JWT nas requisições
+api.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`; // Adiciona o token no header
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-// Função para criar uma nova categoria
-export const createCategory = async (categoryName) => {
-  const token = getToken();
-  if (!token) throw new Error('User is not authenticated');
-
-  try {
-    const response = await axios.post(
-      'http://localhost:5000/api/categories',
-      { name: categoryName },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error creating category:', error);
-    throw error;
-  }
-};
+export default api;

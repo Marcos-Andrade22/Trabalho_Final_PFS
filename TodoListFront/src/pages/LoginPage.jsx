@@ -1,17 +1,9 @@
-// pages/LoginPage.jsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import api from '../api/axios'; // Importando o axios configurado
+import api from '../api/axios';
 import SnackbarNotification from '../components/SnackbarNotification';
-
-const LoginContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f4e1c1;
-`;
+import { AuthContext } from '../context/AuthContext'; // Importando o contexto
 
 const Form = styled.form`
   background-color: #d1b18d;
@@ -43,63 +35,68 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
+const PageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4e1c1;
+`;
+
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setIsAuthenticated } = useContext(AuthContext);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const loginData = { username, password };
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     try {
-      const { data } = await api.post('/auth/login', loginData); // Requisição para login
-      localStorage.setItem('token', data.token); // Armazenar o token no localStorage
-      setSnackbarMessage('Login bem-sucedido!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-      navigate('/dashboard');
+      const response = await api.post('/auth/login', {
+        username,
+        password,
+      });
+
+      localStorage.setItem('token', response.data.token);
+      setIsAuthenticated(true);
+
+      const from = location.state?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     } catch (error) {
-      setSnackbarMessage('Erro no login. Verifique suas credenciais.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      setErrorMessage('Credenciais inválidas!');
     }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
   return (
-    <LoginContainer>
+    <PageContainer>
       <Form onSubmit={handleSubmit}>
         <h2>Login</h2>
         <Input
           type="text"
+          placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-          required
         />
         <Input
           type="password"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          required
         />
-        <Button type="submit">Entrar</Button>
+        {errorMessage && <SnackbarNotification message={errorMessage} />}
+        <Button type="submit">Login</Button>
       </Form>
-
-      <SnackbarNotification
-        open={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        handleClose={handleSnackbarClose}
-      />
-    </LoginContainer>
+    </PageContainer>
   );
 };
 

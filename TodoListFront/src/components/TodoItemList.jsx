@@ -6,7 +6,7 @@ const TodoItemList = () => {
 
   useEffect(() => {
     const fetchTodoItems = async () => {
-      const data = await getTodoItems();
+      const data = await getTodoItems(); // Obtendo os itens da lista de tarefas
       setTodoItems(data);
     };
     fetchTodoItems();

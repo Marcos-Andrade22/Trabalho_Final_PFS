@@ -1,3 +1,5 @@
+// src/App.jsx
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { GlobalStyle } from './globalStyles';
@@ -5,18 +7,45 @@ import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import TodoListPage from './pages/TodoListPage';
+import CategoryListPage from './pages/CategoryListPage'; 
+import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './context/AuthContext'; // Importação corrigida
 
 const App = () => {
   return (
-    <Router>
-      <GlobalStyle />
-      <Navbar />
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/todos" element={<TodoListPage />} />
-      </Routes>
-    </Router>
+    <AuthProvider>  {/* Envolvendo a aplicação com o AuthProvider */}
+      <Router>
+        <GlobalStyle />
+        <Navbar />
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <DashboardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/todos"
+            element={
+              <PrivateRoute>
+                <TodoListPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <PrivateRoute>
+                <CategoryListPage />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 
