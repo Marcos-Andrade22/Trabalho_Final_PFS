@@ -127,7 +127,6 @@ const TodoListPage = () => {
           api.get('/categories'),
           api.get('/todoitems'),
         ]);
-
         setCategories(categoriesData.data);
         setTodoItems(todoItemsData.data);
       } catch (error) {
@@ -159,28 +158,26 @@ const TodoListPage = () => {
   const handleUpdateItem = async (itemId) => {
     const newTitle = prompt('Novo título do item:');
     if (!newTitle) return;
-  
+
     const itemToUpdate = todoItems.find((item) => item.id === itemId);
-  
+
     if (!itemToUpdate) {
       setSnackbarMessage('Item não encontrado.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
-  
+
     try {
-      const updatedItem = {
-        ...itemToUpdate,
-        title: newTitle,
-      };
-  
+      const updatedItem = { ...itemToUpdate, title: newTitle };
       await api.put(`/todoitems/${itemId}`, updatedItem);
-  
+
       setTodoItems((prevItems) =>
-        prevItems.map((item) => (item.id === itemId ? { ...item, title: newTitle } : item))
+        prevItems.map((item) =>
+          item.id === itemId ? { ...item, title: newTitle } : item
+        )
       );
-  
+
       setSnackbarMessage('Item atualizado com sucesso!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
@@ -190,7 +187,6 @@ const TodoListPage = () => {
       setSnackbarOpen(true);
     }
   };
-  
 
   const handleDeleteItem = async (itemId) => {
     if (!window.confirm('Tem certeza que deseja excluir este item?')) return;
@@ -233,6 +229,87 @@ const TodoListPage = () => {
     }
   };
 
+  const handleUpdateCategory = async (categoryId) => {
+    // Exibe o prompt para o usuário atualizar o nome da categoria
+    const newName = prompt('Novo nome da categoria:');
+  
+    // Se o nome for vazio ou só contiver espaços, exibe um erro e não faz nada
+    if (!newName || newName.trim() === '') {
+      setSnackbarMessage('O nome da categoria não pode ser vazio.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+  
+    // Envia a requisição PUT para atualizar a categoria
+    try {
+      const updatedCategory = { id: categoryId, name: newName.trim() }; // Inclui o id da categoria
+      await api.put(`/categories/${categoryId}`, updatedCategory); // Requisição para atualizar a categoria
+  
+      // Atualiza o estado local para refletir a mudança
+      setCategories((prevCategories) =>
+        prevCategories.map((category) =>
+          category.id === categoryId ? { ...category, name: newName.trim() } : category
+        )
+      );
+  
+      // Exibe uma notificação de sucesso
+      setSnackbarMessage('Categoria atualizada com sucesso!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error(error);
+  
+      if (error.response?.status === 403) {
+        setSnackbarMessage('Você precisa ter permissão de administrador para atualizar este item.');
+      } else if (error.response?.status === 400) {
+        setSnackbarMessage('Erro ao atualizar a categoria. Verifique os dados enviados.');
+      } else {
+        setSnackbarMessage('Erro ao atualizar a categoria.');
+      }
+  
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+  
+  
+
+
+  const handleDeleteCategory = async (categoryId) => {
+    const category = categories.find((cat) => cat.id === categoryId);
+    const categoryHasItems = todoItems.some((item) => item.categoryId === categoryId);
+
+    if (categoryHasItems) {
+      setSnackbarMessage('Não é possível excluir uma categoria com itens associados.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!window.confirm('Tem certeza que deseja excluir esta categoria?')) return;
+
+    try {
+      await api.delete(`/categories/${categoryId}`);
+      setCategories((prevCategories) => prevCategories.filter((cat) => cat.id !== categoryId));
+      setTodoItems((prevItems) => prevItems.filter((item) => item.categoryId !== categoryId));
+
+      setSnackbarMessage('Categoria excluída com sucesso!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.log(error)
+      console.log(error.status)
+      if(error.status === 403){
+        setSnackbarMessage("Você precisa ter permissão de adminstrador para realizar essa exclusão.")
+      }else{
+        setSnackbarMessage('Erro ao excluir categoria.');
+      }
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
   const toggleCategoryExpansion = (categoryId) => {
     setExpandedCategoryId((prevId) => (prevId === categoryId ? null : categoryId));
   };
@@ -257,12 +334,20 @@ const TodoListPage = () => {
             <CategoryTitle onClick={() => toggleCategoryExpansion(category.id)}>
               {category.name}
             </CategoryTitle>
-            <CreateItemButton
-              onClick={() => handleCreateItem(category.id)}
-              isExpanded={expandedCategoryId === category.id}
-            >
-              Criar Item
-            </CreateItemButton>
+            <div>
+              <UpdateButton onClick={() => handleUpdateCategory(category.id)}>
+                Atualizar Categoria
+              </UpdateButton>
+              <DeleteButton onClick={() => handleDeleteCategory(category.id)}>
+                Excluir Categoria
+              </DeleteButton>
+              <CreateItemButton
+                onClick={() => handleCreateItem(category.id)}
+                isExpanded={expandedCategoryId === category.id}
+              >
+                Criar Item
+              </CreateItemButton>
+            </div>
           </CategoryTitleContainer>
 
           {expandedCategoryId === category.id && (
