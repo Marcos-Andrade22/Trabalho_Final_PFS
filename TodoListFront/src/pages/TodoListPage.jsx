@@ -27,17 +27,43 @@ const CategoryTitle = styled.h2`
   cursor: pointer;
 `;
 
-const CreateItemButton = styled.button`
+const BaseButton = styled.button`
   padding: 0.8rem 1.5rem;
-  background-color: #4b3f2f;
   color: white;
   border: none;
   border-radius: 8px;
   font-family: 'Georgia', serif;
   font-size: 1rem;
   cursor: pointer;
-  margin-left: 1rem;
-  display: ${({ isExpanded }) => (isExpanded ? 'none' : 'inline-block')};
+  margin: 0.5rem;
+
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
+const CreateItemButton = styled(BaseButton)`
+  background-color: #4b3f2f;
+
+  &:hover {
+    background-color: #3b3124;
+  }
+`;
+
+const UpdateButton = styled(BaseButton)`
+  background-color: #f1c40f;
+
+  &:hover {
+    background-color: #f39c12;
+  }
+`;
+
+const DeleteButton = styled(BaseButton)`
+  background-color: #e74c3c;
+
+  &:hover {
+    background-color: #c0392b;
+  }
 `;
 
 const TodoItemList = styled.ul`
@@ -54,34 +80,6 @@ const TodoItem = styled.li`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`;
-
-const UpdateButton = styled.button`
-  padding: 0.5rem 1rem;
-  background-color: #f1c40f;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 0.5rem;
-
-  &:hover {
-    background-color: #f39c12;
-  }
-`;
-
-const DeleteButton = styled.button`
-  padding: 0.5rem 1rem;
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 0.5rem;
-
-  &:hover {
-    background-color: #c0392b;
-  }
 `;
 
 const CreateCategoryForm = styled.form`
@@ -101,15 +99,14 @@ const CategoryInput = styled.input`
   width: 70%;
 `;
 
-const CreateCategoryButton = styled.button`
-  padding: 0.8rem 1.5rem;
+const CreateCategoryButton = styled(BaseButton)`
   background-color: #4b3f2f;
-  color: white;
-  font-size: 1.2rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+
+  &:hover {
+    background-color: #3b3124;
+  }
 `;
+
 
 const TodoListPage = () => {
   const [categories, setCategories] = useState([]);
@@ -343,7 +340,6 @@ const TodoListPage = () => {
               </DeleteButton>
               <CreateItemButton
                 onClick={() => handleCreateItem(category.id)}
-                isExpanded={expandedCategoryId === category.id}
               >
                 Criar Item
               </CreateItemButton>
