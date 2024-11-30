@@ -13,7 +13,7 @@ using BCrypt.Net; // Biblioteca BCrypt
 public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
-    private readonly IConfiguration _configuration; // Para gerenciar a chave secreta
+    private readonly IConfiguration _configuration;
 
     public AuthController(AppDbContext context, IConfiguration configuration)
     {
@@ -22,22 +22,46 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] User user)
+    public async Task<IActionResult> Register([FromBody] RegisterUserDto registerUser)
     {
-        // Verifica se o usuário já existe
-        if (await _context.Users.AnyAsync(u => u.Username == user.Username))
+        try
         {
-            return BadRequest("Username already exists.");
+            // Validações básicas
+            if (string.IsNullOrWhiteSpace(registerUser.Username) || string.IsNullOrWhiteSpace(registerUser.Password))
+            {
+                return BadRequest("Username and password are required.");
+            }
+
+            // Se o Role não for fornecido, defina um valor default
+            if (string.IsNullOrWhiteSpace(registerUser.Role))
+            {
+                registerUser.Role = "User"; // Definir um valor padrão
+            }
+
+            // Verifica se o usuário já existe
+            if (await _context.Users.AnyAsync(u => u.Username == registerUser.Username))
+            {
+                return BadRequest("Username already exists.");
+            }
+
+            // Cria o usuário com a senha hasheada
+            var user = new User
+            {
+                Username = registerUser.Username,
+                Password = BCrypt.Net.BCrypt.HashPassword(registerUser.Password),
+                Role = registerUser.Role // Incluindo a Role
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("User registered successfully.");
         }
-
-        // Hasheia a senha
-        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-
-        // Adiciona e salva o novo usuário
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        return Ok("User registered successfully.");
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during registration: {ex.Message}");
+            return StatusCode(500, "An internal error occurred.");
+        }
     }
 
     [HttpPost("login")]
@@ -55,7 +79,6 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid username or password");
         }
 
-        // Geração do token JWT
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]);
 
@@ -64,7 +87,7 @@ public class AuthController : ControllerBase
             Subject = new ClaimsIdentity(new Claim[] 
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role ?? "User") // Default Role caso Role seja nulo
+                new Claim(ClaimTypes.Role, user.Role ?? "User")
             }),
             Expires = DateTime.UtcNow.AddHours(1),
             Issuer = _configuration["JwtSettings:Issuer"],

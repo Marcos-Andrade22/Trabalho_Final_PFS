@@ -43,9 +43,14 @@ const Navbar = () => {
     <Nav>
       <NavList>
         {!isAuthenticated && (
-          <NavItem>
-            <Link to="/login">Login</Link>
-          </NavItem>
+          <>
+            <NavItem>
+              <Link to="/login">Login</Link>
+            </NavItem>
+            <NavItem>
+              <Link to="/register">Registro</Link>
+            </NavItem>
+          </>
         )}
         {isAuthenticated && (
           <>

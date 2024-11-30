@@ -12,6 +12,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`; // Adiciona o token no header
     }
+    // Garantir que o Content-Type seja application/json para POSTs
+    if (config.method === 'post') {
+      config.headers['Content-Type'] = 'application/json';
+    }
     return config;
   },
   (error) => Promise.reject(error)
