@@ -123,10 +123,12 @@ const TodoListPage = () => {
   useEffect(() => {
     const fetchCategoriesAndItems = async () => {
       try {
-        const categoriesData = await api.get('/categories');
-        setCategories(categoriesData.data);
+        const [categoriesData, todoItemsData] = await Promise.all([
+          api.get('/categories'),
+          api.get('/todoitems'),
+        ]);
 
-        const todoItemsData = await api.get('/items');
+        setCategories(categoriesData.data);
         setTodoItems(todoItemsData.data);
       } catch (error) {
         setSnackbarMessage('Erro ao carregar dados.');
@@ -140,21 +142,13 @@ const TodoListPage = () => {
 
   const handleCreateItem = async (categoryId) => {
     try {
-      const newItem = {
-        title: 'Novo Item',
-        categoryId: categoryId,
-      };
-
-      // Envia a requisição POST para criar o item
+      const newItem = { title: 'Novo Item', categoryId };
       const { data } = await api.post('/todoitems', newItem);
+      setTodoItems((prevItems) => [...prevItems, data]);
 
       setSnackbarMessage('Item criado com sucesso!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-
-      // Adiciona o item completo (com o id retornado) ao estado
-      setTodoItems((prevItems) => [...prevItems, data]);
-
     } catch (error) {
       setSnackbarMessage('Erro ao criar item.');
       setSnackbarSeverity('error');
@@ -163,47 +157,51 @@ const TodoListPage = () => {
   };
 
   const handleUpdateItem = async (itemId) => {
-    if (!itemId) {
-      setSnackbarMessage('ID do item inválido.');
+    const newTitle = prompt('Novo título do item:');
+    if (!newTitle) return;
+  
+    const itemToUpdate = todoItems.find((item) => item.id === itemId);
+  
+    if (!itemToUpdate) {
+      setSnackbarMessage('Item não encontrado.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
-
-    const newTitle = prompt('Novo título do item:');
-    if (!newTitle) return;
-
+  
     try {
-      await api.put(`/TodoItems/${itemId}`, { title: newTitle });
+      const updatedItem = {
+        ...itemToUpdate,
+        title: newTitle,
+      };
+  
+      await api.put(`/todoitems/${itemId}`, updatedItem);
+  
+      setTodoItems((prevItems) =>
+        prevItems.map((item) => (item.id === itemId ? { ...item, title: newTitle } : item))
+      );
+  
       setSnackbarMessage('Item atualizado com sucesso!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-
-      setTodoItems((prevItems) => prevItems.map((item) =>
-        item.id === itemId ? { ...item, title: newTitle } : item
-      ));
     } catch (error) {
       setSnackbarMessage('Erro ao atualizar item.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
+  
 
   const handleDeleteItem = async (itemId) => {
-    if (!itemId) {
-      setSnackbarMessage('ID do item inválido.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      return;
-    }
+    if (!window.confirm('Tem certeza que deseja excluir este item?')) return;
 
     try {
-      await api.delete(`/items/${itemId}`);
+      await api.delete(`/todoitems/${itemId}`);
+      setTodoItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+
       setSnackbarMessage('Item excluído com sucesso!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-
-      setTodoItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
     } catch (error) {
       setSnackbarMessage('Erro ao excluir item.');
       setSnackbarSeverity('error');
@@ -223,7 +221,7 @@ const TodoListPage = () => {
     try {
       const newCategory = { name: newCategoryName };
       const { data } = await api.post('/categories', newCategory);
-      setCategories([...categories, data]);
+      setCategories((prevCategories) => [...prevCategories, data]);
       setNewCategoryName('');
       setSnackbarMessage('Categoria criada com sucesso!');
       setSnackbarSeverity('success');
@@ -235,12 +233,8 @@ const TodoListPage = () => {
     }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
-  const handleCategoryToggle = (categoryId) => {
-    setExpandedCategoryId(expandedCategoryId === categoryId ? null : categoryId);
+  const toggleCategoryExpansion = (categoryId) => {
+    setExpandedCategoryId((prevId) => (prevId === categoryId ? null : categoryId));
   };
 
   return (
@@ -260,7 +254,7 @@ const TodoListPage = () => {
       {categories.map((category) => (
         <CategoryContainer key={category.id}>
           <CategoryTitleContainer>
-            <CategoryTitle onClick={() => handleCategoryToggle(category.id)}>
+            <CategoryTitle onClick={() => toggleCategoryExpansion(category.id)}>
               {category.name}
             </CategoryTitle>
             <CreateItemButton
@@ -293,7 +287,7 @@ const TodoListPage = () => {
         open={snackbarOpen}
         message={snackbarMessage}
         severity={snackbarSeverity}
-        handleClose={handleSnackbarClose}
+        handleClose={() => setSnackbarOpen(false)}
       />
     </TodoListContainer>
   );

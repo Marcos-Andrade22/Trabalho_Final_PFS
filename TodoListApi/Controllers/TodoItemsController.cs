@@ -72,7 +72,18 @@ namespace TodoListApi.Controllers
         {
             if (id != todoItem.Id)
             {
-                return BadRequest();
+                return BadRequest("O ID na URL não coincide com o ID do corpo da requisição.");
+            }
+
+            if (string.IsNullOrWhiteSpace(todoItem.Title))
+            {
+                return BadRequest("O título do item não pode estar vazio.");
+            }
+
+            var categoryExists = await _context.Categories.AnyAsync(c => c.Id == todoItem.CategoryId);
+            if (!categoryExists)
+            {
+                return BadRequest("Categoria inválida.");
             }
 
             _context.Entry(todoItem).State = EntityState.Modified;
@@ -95,6 +106,7 @@ namespace TodoListApi.Controllers
 
             return NoContent();
         }
+
 
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
