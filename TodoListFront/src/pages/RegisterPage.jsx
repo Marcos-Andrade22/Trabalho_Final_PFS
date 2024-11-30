@@ -23,6 +23,21 @@ const Input = styled.input`
   font-family: 'Georgia', serif;
 `;
 
+const Select = styled.select`
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid #4b3f2f;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: 'Georgia', serif;
+  background-color: #fff;
+  appearance: none; /* Remove o estilo padrão do navegador */
+  -webkit-appearance: none; /* Para o Safari */
+  -moz-appearance: none; /* Para o Firefox */
+  cursor: pointer;
+`;
+
 const Button = styled.button`
   width: 100%;
   padding: 1rem;
@@ -105,10 +120,10 @@ const RegisterPage = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
         {/* Campo para selecionar o Role */}
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
+        <Select value={role} onChange={(e) => setRole(e.target.value)}>
           <option value="User">User</option>
           <option value="Admin">Admin</option>
-        </select>
+        </Select>
 
         <Button type="submit">Register</Button>
       </Form>
